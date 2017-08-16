@@ -1,0 +1,3 @@
+com\jwt\components\Location.class
+com\jwt\rest\WeatherAPI.class
+com\jwt\rest\HelloWorldService.class
