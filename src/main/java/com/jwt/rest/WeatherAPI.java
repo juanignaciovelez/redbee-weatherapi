@@ -41,11 +41,11 @@ import com.mongodb.util.JSON;
 
 @Path("/weather")
 public class WeatherAPI {	
-	
+	// Get list of users
 	@GET
 	@Path("/users")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getDB() throws UnknownHostException, JSONException{
+	public Response getUsers() throws UnknownHostException, JSONException{
 		MongoClient mongo = new MongoClient( "localhost" , 27017 );
 		DB db = mongo.getDB("hockey");
 		DBCollection users = db.getCollection("users");
@@ -60,7 +60,7 @@ public class WeatherAPI {
 		}
 		return Response.status(200).entity(response.toString()).build();
 	}
-	
+	// Add location to a user. By params receive json with user and location data.
 	@POST
 	@Path("/addLocation")
 	@Consumes({MediaType.TEXT_PLAIN})
@@ -84,7 +84,7 @@ public class WeatherAPI {
 		//RESPONSE
 		return Response.status(200).entity("OK").build();
 	}
-	
+	// Delete location to a user. By params receive json with user and location data.
 	@POST
 	@Path("/deleteLocation")
 	@Consumes({MediaType.TEXT_PLAIN})
@@ -106,7 +106,7 @@ public class WeatherAPI {
 		//RESPONSE
 		return Response.status(200).entity("OK").build();
 	}
-	
+	// Add User. By params receive json with user information.
 	@POST
 	@Path("/addUser")
 	@Consumes({MediaType.TEXT_PLAIN})
@@ -130,7 +130,7 @@ public class WeatherAPI {
 		//RESPONSE
 		return Response.status(200).entity("OK").build();
 	}
-	
+	// Get Board data for a user. User is send by PathParam
 	@GET
 	@Path("board/{user}")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -165,8 +165,8 @@ public class WeatherAPI {
 		json.put("data", result);
 		return Response.status(200).type(MediaType.APPLICATION_JSON).entity(json.toString()).build();
 	}
-	
-	public JSONObject getYahooWeather(String city) throws JSONException {
+	// Get weather information from YahooWeather Developer API.
+	private JSONObject getYahooWeather(String city) throws JSONException {
 		URL url;
 		String resultado = "";
 		try {
