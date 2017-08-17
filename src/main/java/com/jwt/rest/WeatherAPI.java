@@ -64,106 +64,147 @@ public class WeatherAPI {
 	@POST
 	@Path("/addLocation")
 	@Consumes({MediaType.TEXT_PLAIN})
-	public Response addLocation(String input) throws IOException, JSONException{
+	public Response addLocation(String input) {
 		//INPUT READER
-		JSONObject json = new JSONObject(input);
+		JSONObject json;
+		try {
+			json = new JSONObject(input);
 
-		//DB CONNECTION
-		MongoClient mongo = new MongoClient( "localhost" , 27017 );
-		DB db = mongo.getDB("hockey");
-		DBCollection users = db.getCollection("users");
-		
-		//UPDATE LOCATIONS
-		BasicDBObject query = new BasicDBObject();
-		query.put("username", json.get("username"));
-		BasicDBObject push = new BasicDBObject();
-		
-		push.put("$push", new BasicDBObject("locations", new BasicDBObject("city",json.get("city"))));
-		users.update(query, push);
-		
-		//RESPONSE
-		return Response.status(200).entity("OK").build();
+			//DB CONNECTION
+			MongoClient mongo = new MongoClient( "localhost" , 27017 );
+			DB db = mongo.getDB("hockey");
+			DBCollection users = db.getCollection("users");
+			
+			//UPDATE LOCATIONS
+			BasicDBObject query = new BasicDBObject();
+			query.put("username", json.get("username"));
+			BasicDBObject push = new BasicDBObject();
+			
+			push.put("$push", new BasicDBObject("locations", new BasicDBObject("city",json.get("city"))));
+			users.update(query, push);
+			
+			//RESPONSE
+			return Response.status(200).entity("OK").build();
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return Response.status(500).entity("Error").build();
+
 	}
 	// Delete location to a user. By params receive json with user and location data.
 	@POST
 	@Path("/deleteLocation")
 	@Consumes({MediaType.TEXT_PLAIN})
-	public Response deleteLocation(String input) throws IOException, JSONException{
+	public Response deleteLocation(String input){
 		//INPUT READER
-		JSONObject json = new JSONObject(input);
+		JSONObject json;
+		try {
+			json = new JSONObject(input);
+			//DB CONNECTION
+			MongoClient mongo = new MongoClient( "localhost" , 27017 );
+			DB db = mongo.getDB("hockey");
+			DBCollection users = db.getCollection("users");
 
-		//DB CONNECTION
-		MongoClient mongo = new MongoClient( "localhost" , 27017 );
-		DB db = mongo.getDB("hockey");
-		DBCollection users = db.getCollection("users");
-
-		BasicDBObject query = new BasicDBObject("username", json.get("username"));
-	    BasicDBObject fields = new BasicDBObject("locations", 
-	        new BasicDBObject( "city", ((String)json.get("city")).toLowerCase()));
-	    BasicDBObject update = new BasicDBObject("$pull",fields);
-	    users.update( query, update );
+			BasicDBObject query = new BasicDBObject("username", json.get("username"));
+		    BasicDBObject fields = new BasicDBObject("locations", 
+		        new BasicDBObject( "city", ((String)json.get("city")).toLowerCase()));
+		    BasicDBObject update = new BasicDBObject("$pull",fields);
+		    users.update( query, update );
+			
+			//RESPONSE
+			return Response.status(200).entity("OK").build();
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return Response.status(500).entity("Error").build();
 		
-		//RESPONSE
-		return Response.status(200).entity("OK").build();
 	}
 	// Add User. By params receive json with user information.
 	@POST
 	@Path("/addUser")
 	@Consumes({MediaType.TEXT_PLAIN})
-	public Response addUser(String input) throws IOException, JSONException{
+	public Response addUser(String input){
 		//INPUT READER
-		JSONObject json = new JSONObject(input);
-
-		//DB CONNECTION
-		MongoClient mongo = new MongoClient( "localhost" , 27017 );
-		DB db = mongo.getDB("hockey");
-		DBCollection users = db.getCollection("users");
-		
-		//UPDATE LOCATIONS
-		BasicDBObject query = new BasicDBObject();
-		//query.put("username", json.get("username"));
-		BasicDBObject insert = new BasicDBObject();
-		
-		insert.put("username", json.get("username"));
-		users.insert(insert);
-		
-		//RESPONSE
-		return Response.status(200).entity("OK").build();
+		JSONObject json;
+		try {
+			json = new JSONObject(input);
+			//DB CONNECTION
+			MongoClient mongo = new MongoClient( "localhost" , 27017 );
+			DB db = mongo.getDB("hockey");
+			DBCollection users = db.getCollection("users");
+			
+			//UPDATE LOCATIONS
+			BasicDBObject query = new BasicDBObject();
+			//query.put("username", json.get("username"));
+			BasicDBObject insert = new BasicDBObject();
+			
+			insert.put("username", json.get("username"));
+			users.insert(insert);
+			
+			//RESPONSE
+			return Response.status(200).entity("OK").build();
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return Response.status(500).entity("Error").build();		
 	}
 	// Get Board data for a user. User is send by PathParam
 	@GET
 	@Path("board/{user}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getBoard(@PathParam("user") String user) throws UnknownHostException, JSONException {
+	public Response getBoard(@PathParam("user") String user){
 		
-		MongoClient mongo = new MongoClient("localhost", 27017);
-		DB db = mongo.getDB("hockey");
-		DBCollection users = db.getCollection("users");
-		
-		List<JSONObject> result = new ArrayList<JSONObject>();
-		
-		BasicDBObject query = new BasicDBObject();
-		BasicDBObject field = new BasicDBObject();
-		query.put("username", user);
-		field.put("locations", 1);
-		DBCursor cursor = db.getCollection("users").find(query,field);
-		while (cursor.hasNext()) {
-		    BasicDBObject obj = (BasicDBObject) cursor.next();
-		    JSONObject jsonobj = new JSONObject();
-		    BasicDBList location = (BasicDBList) obj.get("locations");
-		    // optional: break it into a native java array
-		    if (location != null) {
-			    BasicDBObject[] lightArr = location.toArray(new BasicDBObject[0]);
-			    for(BasicDBObject dbObj : lightArr) {
-			      // shows each item from the lights array
-			      System.out.println(dbObj.get("city"));
-			      result.add(getYahooWeather(dbObj.get("city").toString()));
+		MongoClient mongo;
+		try {
+			mongo = new MongoClient("localhost", 27017);
+			DB db = mongo.getDB("hockey");
+			DBCollection users = db.getCollection("users");
+			
+			List<JSONObject> result = new ArrayList<JSONObject>();
+			
+			BasicDBObject query = new BasicDBObject();
+			BasicDBObject field = new BasicDBObject();
+			query.put("username", user);
+			field.put("locations", 1);
+			DBCursor cursor = db.getCollection("users").find(query,field);
+			while (cursor.hasNext()) {
+			    BasicDBObject obj = (BasicDBObject) cursor.next();
+			    JSONObject jsonobj = new JSONObject();
+			    BasicDBList location = (BasicDBList) obj.get("locations");
+			    // optional: break it into a native java array
+			    if (location != null) {
+				    BasicDBObject[] lightArr = location.toArray(new BasicDBObject[0]);
+				    for(BasicDBObject dbObj : lightArr) {
+				      // shows each item from the lights array
+				      System.out.println(dbObj.get("city"));
+				      result.add(getYahooWeather(dbObj.get("city").toString()));
+				    }
 			    }
-		    }
+			}
+			JSONObject json = new JSONObject();
+			json.put("data", result);
+			return Response.status(200).type(MediaType.APPLICATION_JSON).entity(json.toString()).build();
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		JSONObject json = new JSONObject();
-		json.put("data", result);
-		return Response.status(200).type(MediaType.APPLICATION_JSON).entity(json.toString()).build();
+		return Response.status(500).entity("Error").build();		
+		
 	}
 	// Get weather information from YahooWeather Developer API.
 	private JSONObject getYahooWeather(String city) throws JSONException {
